@@ -30,7 +30,11 @@ final class MovieListViewModel: ObservableObject {
     
     @Published var movies: [Movie] = []
     @Published var searchTerm: String = ""
-    @Published var state: BrowsingState = .good
+    @Published var state: BrowsingState = .good {
+        didSet {
+            print("state changed to: \(state)")
+        }
+    }
     var page = 1
     var total_pages = 1
     
@@ -42,6 +46,9 @@ final class MovieListViewModel: ObservableObject {
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .sink { [weak self] term in
                 self?.movies = []  // empty the movies array when you change your searchTerm
+                self?.total_pages = 1  // reestablish total pages to 1
+                self?.page = 1  // return to page 1 of results
+                self?.state = .good  // reset state to good
                 self?.fetchMovies(for: term) // start a fetchmovies when the searchterm changes
             }.store(in: &subscriptions)
     }
